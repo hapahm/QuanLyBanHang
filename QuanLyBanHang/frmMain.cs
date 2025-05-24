@@ -13,6 +13,7 @@ namespace QuanLyBanHang
 {
     public partial class frmMain : Form
     {
+        bool isThoat = true;
         public frmMain()
         {
             InitializeComponent();
@@ -23,16 +24,11 @@ namespace QuanLyBanHang
             Functions.Connect(); //Mở kết nối
         }
 
-        private void mnuThoat_Click(object sender, EventArgs e)
-        {
-            Functions.Disconnect(); //Đóng kết nối
-            Application.Exit(); //Thoát
-        }
-
         private void mnuThuongHieu_Click(object sender, EventArgs e)
         {
             frmDMThuongHieu frm = new frmDMThuongHieu(); //Khởi tạo đối tượng
-            frm.ShowDialog(); //Hiển thị
+            frm.MdiParent = this;
+            frm.Show();
         }
 
         private void mnuHangHoa_Click(object sender, EventArgs e)
@@ -42,12 +38,6 @@ namespace QuanLyBanHang
             frm.Show();
         }
 
-        private void mnuNhanVien_Click(object sender, EventArgs e)
-        {
-            frmDMNhanVien frm = new frmDMNhanVien();
-            frm.MdiParent = this;
-            frm.Show();
-        }
 
         private void mnuKhachHang_Click(object sender, EventArgs e)
         {
@@ -66,6 +56,47 @@ namespace QuanLyBanHang
         private void mnuFindHoaDon_Click(object sender, EventArgs e)
         {
             frmTimHDBan frm = new frmTimHDBan();
+            frm.MdiParent = this;
+            frm.Show();
+        }
+
+        private void mnuNhanVien_Click_1(object sender, EventArgs e)
+        {
+            frmDMNhanVien frm = new frmDMNhanVien();
+            frm.MdiParent = this;
+            frm.Show();
+        }
+
+        private void mnuThoat_Click(object sender, EventArgs e)
+        {
+            if (isThoat)
+            {
+                //Functions.Disconnect(); //Đóng kết nối
+                Application.Exit(); //Thoát
+            }
+        }
+
+        private void mnuDangXuat_Click(object sender, EventArgs e)
+        {
+            isThoat = false;
+            this.Close();
+            FormLogin f = new FormLogin();
+            f.Show();
+        }
+
+        private void frmMain_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (isThoat)
+            {
+                Functions.Disconnect(); //Đóng kết nối
+                Application.Exit(); //Thoát
+            }
+            
+        }
+
+        private void mnuBCDoanhThu_Click(object sender, EventArgs e)
+        {
+            frmBaoCao frm = new frmBaoCao();
             frm.MdiParent = this;
             frm.Show();
         }

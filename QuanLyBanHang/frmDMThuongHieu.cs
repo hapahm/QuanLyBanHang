@@ -82,14 +82,32 @@ namespace QuanLyBanHang
             txtTenThuongHieu.Text = "";
         }
 
+        private bool IsMaThuongHieuValid(string maKhach)
+        {
+            if (string.IsNullOrWhiteSpace(maKhach)) return false;
+            return maKhach.All(char.IsLetterOrDigit);
+        }
+
+        
+
         private void btnLuu_Click(object sender, EventArgs e)
         {
             string sql; //Lưu lệnh sql
-            if (txtMaThuongHieu.Text.Trim().Length == 0) //Nếu chưa nhập mã chất liệu
+            string maThuongHieuTrimmed = txtMaThuongHieu.Text.Trim();
+            if (maThuongHieuTrimmed.Length == 0) //Nếu chưa nhập mã chất liệu
             {
                 MessageBox.Show("Bạn phải nhập mã thương hiệu", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 txtMaThuongHieu.Focus();
                 return;
+            }
+            if (txtMaThuongHieu.Enabled) // Chỉ kiểm tra định dạng mã khách khi thêm mới (mã khách cho phép nhập)
+            {
+                if (!IsMaThuongHieuValid(maThuongHieuTrimmed))
+                {
+                    MessageBox.Show("Mã khách chỉ được chứa chữ cái và số, không chứa kí tự đặc biệt hoặc khoảng trắng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtMaThuongHieu.Focus();
+                    return;
+                }
             }
             if (txtTenThuongHieu.Text.Trim().Length == 0) //Nếu chưa nhập tên chất liệu
             {
@@ -142,7 +160,6 @@ namespace QuanLyBanHang
             Functions.RunSQL(sql);
             LoadDataGridView();
             ResetValue();
-
             btnBoQua.Enabled = false;
         }
 

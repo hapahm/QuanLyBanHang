@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Data.SqlClient;
 using QuanLyBanHang.Class;
 
+
 namespace QuanLyBanHang
 {
     public partial class frmTimHDBan : Form

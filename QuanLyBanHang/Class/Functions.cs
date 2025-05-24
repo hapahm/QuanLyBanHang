@@ -11,10 +11,10 @@ namespace QuanLyBanHang.Class
 {
     internal class Functions
     {
-        public static SqlConnection con;  //Khai báo đối tượng kết nối
-        public static void Connect()
+        public static SqlConnection con; //Biến kết nối SQL dùng toàn cục
+        public static void Connect() //Mở kết nối SQL (thông báo thành công/thất bại)
         {
-            con = new SqlConnection();
+            con = new SqlConnection(); // tạo đối tượng kết nối mới. Biến con đã được khai báo chung trước đó
             con.ConnectionString = Properties.Settings.Default.QLBanHangConnectionString;
             if (con.State != ConnectionState.Open)
             {
@@ -26,7 +26,7 @@ namespace QuanLyBanHang.Class
                 MessageBox.Show("Kết nối không thành công");
             }
         }
-        public static void Disconnect()
+        public static void Disconnect() //Đóng kết nối SQL
         {
             if (con.State == ConnectionState.Open)
             {
@@ -35,7 +35,7 @@ namespace QuanLyBanHang.Class
                 con = null;
             }
         }
-        // Phương thức thực thi câu lệnh Select lấy dữ liệu
+        // Thực thi SELECT → trả về DataTable
         public static DataTable GetDataToTable(string sql)
         {
             DataTable table = new DataTable();
@@ -44,7 +44,7 @@ namespace QuanLyBanHang.Class
             return table;
         }
 
-        //Phương thức thực thi câu lệnh insert, update, delete
+        //Thực thi INSERT/UPDATE/DELETE
         public static void RunSQL(string sql)
         {
             SqlCommand cmd; //Đối tượng thuộc lớp SqlCommand
@@ -63,7 +63,7 @@ namespace QuanLyBanHang.Class
             cmd = null;
         }
 
-        //Hàm kiểm tra khóa trùng
+        //Hàm kiểm tra khóa trùng. 
         public static bool CheckKey(string sql)
         {
             SqlDataAdapter dap = new SqlDataAdapter(sql, con);
@@ -74,7 +74,7 @@ namespace QuanLyBanHang.Class
             else return false;
         }
 
-        //
+        //Đổ dữ liệu vào ComboBox
         public static void FillCombo(string sql, ComboBox cbo, string ma, string ten)
         {
             SqlDataAdapter dap = new SqlDataAdapter(sql, con);
@@ -84,7 +84,7 @@ namespace QuanLyBanHang.Class
             cbo.ValueMember = ma; //Trường giá trị
             cbo.DisplayMember = ten; //Trường hiển thị
         }
-
+        //Lấy 1 giá trị đơn từ kết quả SQL
         public static string GetFieldValues(string sql)
         {
             string ma = "";
@@ -97,12 +97,7 @@ namespace QuanLyBanHang.Class
             return ma;
         }
 
-        //Hàm chuyển đồi từ số sang chữ
-
-
-        //123 => một trăm hai ba đồng
-        //1,123,000=>một triệu một trăm hai ba nghìn đồng
-        //1,123,345,000 => một tỉ một trăm hai ba triệu ba trăm bốn lăm ngàn đồng
+        //Chuyển số thành chữ (VNĐ)
         static string[] mNumText = "không;một;hai;ba;bốn;năm;sáu;bảy;tám;chín".Split(';');
         //Viết hàm chuyển số hàng chục, giá trị truyền vào là số cần chuyển và một biến đọc phần lẻ hay không ví dụ 101 => một trăm lẻ một
         private static string DocHangChuc(double so, bool daydu)
@@ -143,6 +138,8 @@ namespace QuanLyBanHang.Class
             }
             return chuoi;
         }
+
+        //Tạo chuỗi khóa theo định dạng TienTo + ddMMyyyy_HHmmss
         private static string DocHangTram(double so, bool daydu)
         {
             string chuoi = "";
@@ -211,9 +208,9 @@ namespace QuanLyBanHang.Class
                 hauto = " tỷ";
             } while (ty > 0);
             return chuoi + " đồng";
-        }  
-    
-        //Hàm tạo khóa có dạng: TientoNgaythangnam_giophutgiay
+        }
+
+        //Chuyển đổi giờ PM sang định dạng 24h
         public static string CreateKey(string tiento)
         {
             string key = tiento;

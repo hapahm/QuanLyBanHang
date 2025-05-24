@@ -7,27 +7,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+//Khai báo thư viện
 using System.Data.SqlClient;
 using QuanLyBanHang.Class;
 using COMExcel = Microsoft.Office.Interop.Excel;
 
-namespace QuanLyBanHang
+namespace QuanLyBanHang 
 {
     public partial class frmHoaDonBan : Form
     {
-        DataTable tblCTHDB; //Bảng chi tiết hoá đơn bán
+        DataTable tblCTHDB; //Lưu kết quả tìm kiếm dưới dạng DataTable
         public frmHoaDonBan()
         {
-            InitializeComponent();
+            InitializeComponent(); // Gọi hàm ... để khởi tạo giao diện từ form thiết kế Designer.cs
         }
-
-        private void frmHoaDonBan_Load(object sender, EventArgs e)
+        
+        private void frmHoaDonBan_Load(object sender, EventArgs e) // xử lý sự kiện khi Form được tải lần đầu
         {
-            btnThem.Enabled = true;
-            btnLuu.Enabled = false;
+            //Nút
+            btnThem.Enabled = true; 
+            btnLuu.Enabled = false; 
             btnXoa.Enabled = false;
-            btnInHoaDon.Enabled = false;
-            txtMaHDBan.ReadOnly = true;
+            btnInHoaDon.Enabled = false;            
+            //Thiết lập
+            txtMaHDBan.ReadOnly = true; 
             txtTenNhanVien.ReadOnly = true;
             txtTenKhach.ReadOnly = true;
             txtDiaChi.ReadOnly = true;
@@ -36,27 +39,52 @@ namespace QuanLyBanHang
             txtDonGiaBan.ReadOnly = true;
             txtThanhTien.ReadOnly = true;
             txtTongTien.ReadOnly = true;
-            txtGiamGia.Text = "0";
+            txtGiamGia.Text = "0"; 
             txtTongTien.Text = "0";
-            Functions.FillCombo("SELECT MaKhach, TenKhach FROM tblKhach", cboMaKhach, "MaKhach", "TenKhach");
-            cboMaKhach.SelectedIndex = -1;
-            Functions.FillCombo("SELECT MaNhanVien, TenNhanVien FROM tblNhanVien", cboMaNhanVien, "MaNhanVien", "TenNhanVien");
+
+            //txtMaHDBan.Enabled = false;
+            //dtpNgayBan.Enabled = false;
+            //cboMaNhanVien.Enabled = false;
+            //txtTenNhanVien.Enabled = false;
+            //cboMaKhach.Enabled = false;
+            //txtTenKhach.Enabled = false;
+            //txtDiaChi.Enabled = false;
+            //mtbDienThoai.Enabled = false;
+            //cboMaHang.Enabled = false;
+            //txtTenHang.Enabled = false;
+            //txtDonGiaBan.Enabled = false;
+            //txtSoLuong.Enabled = false;
+            //txtGiamGia.Enabled = false;
+            //txtThanhTien.Enabled = false;
+            //txtTongTien.Enabled = false;
+
+            //Đổ dữ liệu từ CSDL vào các combobox
+            Functions.FillCombo("SELECT MaKhach FROM tblKhach", cboMaKhach, "MaKhach", "MaKhach");             
+            cboMaKhach.SelectedIndex = -1; 
+            Functions.FillCombo("SELECT MaNhanVien FROM tblNhanVien", cboMaNhanVien, "MaNhanVien", "MaNhanVien");
             cboMaNhanVien.SelectedIndex = -1;
-            Functions.FillCombo("SELECT MaHang, TenHang FROM tblHang", cboMaHang, "MaHang", "TenHang");
+            Functions.FillCombo("SELECT MaHang FROM tblHang", cboMaHang, "MaHang", "MaHang");
             cboMaHang.SelectedIndex = -1;
-            //Hiển thị thông tin của một hóa đơn được gọi từ form tìm kiếm
+            //nếu đã có mã hóa đơn thì sẽ tải thông tin hóa đơn cũ
             if (txtMaHDBan.Text != "")
             {
                 LoadInfoHoaDon();
                 btnXoa.Enabled = true;
                 btnInHoaDon.Enabled = true;
             }
+            //hiển thị chi tiết hóa đơn vào bảng
             LoadDataGridView();
         }
+
+        //truy vấn và hiển thị dữ liệu từ CSDL
         private void LoadDataGridView()
         {
             string sql;
-            sql = "SELECT a.MaHang, b.TenHang, a.SoLuong, b.DonGiaBan, a.GiamGia,a.ThanhTien FROM tblChiTietHDBan AS a, tblHang AS b WHERE a.MaHDBan = N'" + txtMaHDBan.Text + "' AND a.MaHang=b.MaHang";
+            //a.MaHang = tblChiTietHDBan
+            //b.
+            sql = "SELECT a.MaHang, b.TenHang, a.SoLuong, b.DonGiaBan, a.GiamGia,a.ThanhTien FROM tblChiTietHDBan AS a, tblHang AS b WHERE a.MaHDBan = N'" + txtMaHDBan.Text + "' AND a.MaHang=b.MaHang"; //SQL để JOIN bảng chi tiết hóa đơn và bảng hàng hóa
+
+            //Thiết lập tiêu đề cột, độ rộng cột, chế độ chỉnh sửa bảng
             tblCTHDB = Functions.GetDataToTable(sql);
             dgvHDBanHang.DataSource = tblCTHDB;
             dgvHDBanHang.Columns[0].HeaderText = "Mã hàng";
@@ -75,6 +103,7 @@ namespace QuanLyBanHang
             dgvHDBanHang.EditMode = DataGridViewEditMode.EditProgrammatically;
         }
 
+        //Tải thông tin chi tiết của một hóa đơn bán đã có mã
         private void LoadInfoHoaDon()
         {
             string str;
@@ -84,9 +113,10 @@ namespace QuanLyBanHang
             cboMaNhanVien.SelectedValue = Functions.GetFieldValues(str);
             str = "SELECT MaKhach FROM tblHDBan WHERE MaHDBan = N'" + txtMaHDBan.Text + "'";
             cboMaKhach.SelectedValue = Functions.GetFieldValues(str);
-            str = "SELECT TongTien FROM tblHDBan WHERE MaHDBan = N'" + txtMaHDBan.Text + "'";
+            str = "SELECT TongTien FROM tblHDBan WHERE MaHDBan = N'" + txtMaHDBan.Text + "'";//Ngày bán, mã nhân viên, mã khách, tổng tiền
+
             txtTongTien.Text = Functions.GetFieldValues(str);
-            lblBangChu.Text = "Bằng chữ: " + Functions.ChuyenSoSangChuoi(Double.Parse(txtTongTien.Text));
+            lblBangChu.Text = "Bằng chữ: " + Functions.ChuyenSoSangChuoi(Double.Parse(txtTongTien.Text)); //số tiền dưới dạng chữ 
         }
 
 
@@ -97,9 +127,9 @@ namespace QuanLyBanHang
             btnLuu.Enabled = true;
             btnInHoaDon.Enabled = false;
             btnThem.Enabled = false;
-            ResetValues();
-            txtMaHDBan.Text = Functions.CreateKey("HDB");
-            LoadDataGridView();
+            ResetValues(); //Reset lại các trường dữ liệu về trạng thái ban đầu
+            txtMaHDBan.Text = Functions.CreateKey("HDB");//Tạo mã hóa đơn mới tự động
+            LoadDataGridView();//Tải lại bảng chi tiết hóa đơn
         }
         private void ResetValues()
         {
@@ -119,12 +149,10 @@ namespace QuanLyBanHang
         {
             string sql;
             double sl, SLcon, tong, Tongmoi;
+            // Kiểm tra nếu mã hóa đơn chưa có trong CSDL thì tiến hành lưu mới
             sql = "SELECT MaHDBan FROM tblHDBan WHERE MaHDBan=N'" + txtMaHDBan.Text + "'";
-            if (!Functions.CheckKey(sql))
+            if (!Functions.CheckKey(sql)) //Kiểm tra đầu vào: nhân viên, khách hàng phải được chọn
             {
-                // Mã hóa đơn chưa có, tiến hành lưu các thông tin chung
-                // Mã HDBan được sinh tự động do đó không có trường hợp trùng khóa
-                
                 if (cboMaNhanVien.Text.Length == 0)
                 {
                     MessageBox.Show("Bạn phải nhập nhân viên", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -240,8 +268,8 @@ namespace QuanLyBanHang
             exRange.Range["C2:E2"].Font.ColorIndex = 3; //Màu đỏ
             exRange.Range["C2:E2"].MergeCells = true;
             exRange.Range["C2:E2"].HorizontalAlignment = COMExcel.XlHAlign.xlHAlignCenter;
-            exRange.Range["C2:E2"].Value = "HÓA ĐƠN BÁN";
-            // Biểu diễn thông tin chung của hóa đơn bán
+            exRange.Range["C2:E2"].Value = "HÓA ĐƠN";
+            //Lấy dữ liệu hàng hóa theo MaHDBan
             sql = "SELECT a.MaHDBan, a.NgayBan, a.TongTien, b.TenKhach, b.DiaChi, b.DienThoai, c.TenNhanVien FROM tblHDBan AS a, tblKhach AS b, tblNhanVien AS c WHERE a.MaHDBan = N'" + txtMaHDBan.Text + "' AND a.MaKhach = b.MaKhach AND a.MaNhanVien = c.MaNhanVien";
             tblThongtinHD = Functions.GetDataToTable(sql);
             exRange.Range["B6:C9"].Font.Size = 12;

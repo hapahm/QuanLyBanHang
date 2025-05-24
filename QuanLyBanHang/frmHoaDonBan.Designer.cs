@@ -339,11 +339,11 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.label1.Location = new System.Drawing.Point(354, 9);
+            this.label1.Location = new System.Drawing.Point(318, 8);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(269, 29);
+            this.label1.Size = new System.Drawing.Size(384, 29);
             this.label1.TabIndex = 1;
-            this.label1.Text = "HÓA ĐƠN BÁN HÀNG";
+            this.label1.Text = "CHI TIẾT HÓA ĐƠN BÁN HÀNG";
             // 
             // panel4
             // 
@@ -656,7 +656,7 @@
             this.Name = "frmHoaDonBan";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Hóa đơn bán hàng";
+            this.Text = "Chi tiết hóa đơn bán hàng";
             this.Load += new System.EventHandler(this.frmHoaDonBan_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();

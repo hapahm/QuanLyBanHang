@@ -203,9 +203,9 @@
             this.label1.ForeColor = System.Drawing.SystemColors.HotTrack;
             this.label1.Location = new System.Drawing.Point(360, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(293, 29);
+            this.label1.Size = new System.Drawing.Size(269, 29);
             this.label1.TabIndex = 1;
-            this.label1.Text = "DANH MỤC NHÂN VIÊN";
+            this.label1.Text = "QUẢN LÝ NHÂN VIÊN";
             // 
             // panel2
             // 

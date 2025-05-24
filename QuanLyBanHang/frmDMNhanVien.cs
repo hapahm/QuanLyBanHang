@@ -27,6 +27,11 @@ namespace QuanLyBanHang
             btnLuu.Enabled = false;
             btnBoQua.Enabled = false;
             LoadDataGridView();
+            if (tblNV == null || tblNV.Rows.Count == 0)
+            {
+                btnSua.Enabled = false;
+                btnXoa.Enabled = false;
+            }
         }
 
         public void LoadDataGridView()
@@ -98,14 +103,41 @@ namespace QuanLyBanHang
             mtbDienThoai.Text = "";
         }
 
+        private bool IsMaNhanVienValid(string maNhanVien)
+        {
+            if (string.IsNullOrWhiteSpace(maNhanVien)) return false;
+            return maNhanVien.All(char.IsLetterOrDigit);
+        }
+
+        private bool IsDienThoaiValid(string dienThoaiInput, out string normalizedPhone)
+        {
+            normalizedPhone = new string(dienThoaiInput.Where(char.IsDigit).ToArray());
+            if (string.IsNullOrWhiteSpace(normalizedPhone)) return false; // Rỗng sau khi lọc
+            if (!normalizedPhone.StartsWith("09") || normalizedPhone.Length != 10)
+            {
+                return false;
+            }
+            return true;
+        }
+
         private void btnLuu_Click(object sender, EventArgs e)
         {
             string sql, gt;
+            string maNhanVienTrimmed = txtMaNhanVien.Text.Trim();
             if (txtMaNhanVien.Text.Trim().Length == 0)
             {
                 MessageBox.Show("Bạn phải nhập mã nhân viên", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtMaNhanVien.Focus();
                 return;
+            }
+            if (txtMaNhanVien.Enabled) // Chỉ kiểm tra định dạng mã  khi thêm mới (mã  cho phép nhập)
+            {
+                if (!IsMaNhanVienValid(maNhanVienTrimmed))
+                {
+                    MessageBox.Show("Mã khách chỉ được chứa chữ cái và số, không chứa kí tự đặc biệt hoặc khoảng trắng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtMaNhanVien.Focus();
+                    return;
+                }
             }
             if (txtTenNhanVien.Text.Trim().Length == 0)
             {
@@ -125,8 +157,21 @@ namespace QuanLyBanHang
                 mtbDienThoai.Focus();
                 return;
             }
-            
-            
+            string dienThoaiClean;
+            if (!IsDienThoaiValid(mtbDienThoai.Text, out dienThoaiClean))
+            {
+                if (string.IsNullOrWhiteSpace(new string(mtbDienThoai.Text.Where(char.IsDigit).ToArray()))) // Kiểm tra nếu hoàn toàn rỗng
+                {
+                    MessageBox.Show("Bạn phải nhập số điện thoại.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    MessageBox.Show("Số điện thoại không hợp lệ. Phải bắt đầu bằng '09' và có đúng 10 chữ số.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                mtbDienThoai.Focus();
+                return;
+            }
+
             if (chkGioiTinh.Checked == true)
                 gt = "Nam";
             else
@@ -135,22 +180,46 @@ namespace QuanLyBanHang
             sql = "SELECT MaNhanVien FROM tblNhanVien WHERE MaNhanVien=N'" + txtMaNhanVien.Text.Trim() + "'";
             if (Functions.CheckKey(sql))
             {
-                MessageBox.Show("Mã nhân viên này đã có, bạn phải nhập mã khác", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Mã nhân viên này đã tồn tại, bạn phải nhập mã khác", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtMaNhanVien.Focus();
                 txtMaNhanVien.Text = "";
                 return;
             }
 
-            sql = "INSERT INTO tblNhanVien(MaNhanVien,TenNhanVien,GioiTinh, DiaChi,DienThoai, NgaySinh) VALUES (N'" + txtMaNhanVien.Text.Trim() + "',N'" + txtTenNhanVien.Text.Trim() + "',N'" + gt + "',N'" + txtDiaChi.Text.Trim() + "','" + mtbDienThoai.Text + "','" + dtpNgaySinh.Value + "')";
-            Functions.RunSQL(sql);
-            LoadDataGridView();
-            ResetValues();
-            btnXoa.Enabled = true;
-            btnThem.Enabled = true;
-            btnSua.Enabled = true;
-            btnBoQua.Enabled = false;
-            btnLuu.Enabled = false;
-            txtMaNhanVien.Enabled = false;
+            sql = "INSERT INTO tblNhanVien(MaNhanVien,TenNhanVien,GioiTinh, DiaChi,DienThoai, NgaySinh) VALUES (N'" + maNhanVienTrimmed + "',N'" + txtTenNhanVien.Text.Trim() + "',N'" + gt + "',N'" + txtDiaChi.Text.Trim() + "','" + dienThoaiClean + "','" + dtpNgaySinh.Value + "')";
+
+            try
+            {
+                Functions.RunSQL(sql);
+                MessageBox.Show("Thêm mới nhân viên thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadDataGridView();
+                ResetValues();
+
+                btnXoa.Enabled = true;
+                btnThem.Enabled = true;
+                btnSua.Enabled = true;
+                btnBoQua.Enabled = false;
+                btnLuu.Enabled = false;
+                txtMaNhanVien.Enabled = false;
+            }
+            catch (SqlException exDb)
+            {
+                MessageBox.Show("Lỗi khi lưu dữ liệu khách hàng (SQL): " + exDb.Message, "Lỗi Cơ sở dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi không xác định khi lưu dữ liệu: " + ex.Message, "Lỗi Hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            //Functions.RunSQL(sql);
+            //LoadDataGridView();
+            //ResetValues();
+            //btnXoa.Enabled = true;
+            //btnThem.Enabled = true;
+            //btnSua.Enabled = true;
+            //btnBoQua.Enabled = false;
+            //btnLuu.Enabled = false;
+            //txtMaNhanVien.Enabled = false;
         }
 
         private void btnSua_Click(object sender, EventArgs e)
